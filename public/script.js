@@ -1,0 +1,232 @@
+class NewsFeed {
+    constructor() {
+        this.articles = [];
+        this.currentIndex = 0;
+        this.isLoading = false;
+        this.apiBase = window.location.origin;
+        
+        this.initializeElements();
+        this.bindEvents();
+        this.loadArticles();
+    }
+
+    initializeElements() {
+        this.loadingEl = document.getElementById('loading');
+        this.errorEl = document.getElementById('error');
+        this.newsContainerEl = document.getElementById('news-container');
+        this.articleCardEl = document.getElementById('article-card');
+        
+        // Article content elements
+        this.articleImageEl = document.getElementById('article-image');
+        this.articleSourceEl = document.getElementById('article-source');
+        this.articleTimeEl = document.getElementById('article-time');
+        this.articleTitleEl = document.getElementById('article-title');
+        this.articleSummaryEl = document.getElementById('article-summary');
+        this.articleLinkEl = document.getElementById('article-link');
+        
+        // Counter elements
+        this.currentArticleEl = document.getElementById('current-article');
+        this.totalArticlesEl = document.getElementById('total-articles');
+        
+        // Control elements
+        this.refreshBtnEl = document.getElementById('refresh-btn');
+        this.retryBtnEl = document.getElementById('retry-btn');
+        this.progressBarEl = document.getElementById('progress-bar');
+    }
+
+    bindEvents() {
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                this.nextArticle();
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                this.previousArticle();
+            } else if (e.key === 'r' || e.key === 'R') {
+                e.preventDefault();
+                this.refreshArticles();
+            }
+        });
+
+        // Button events
+        this.refreshBtnEl.addEventListener('click', () => this.refreshArticles());
+        this.retryBtnEl.addEventListener('click', () => this.loadArticles());
+
+        // Touch/swipe support for mobile
+        let startY = 0;
+        let startX = 0;
+        
+        this.articleCardEl.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+            startX = e.touches[0].clientX;
+        });
+
+        this.articleCardEl.addEventListener('touchend', (e) => {
+            if (!startY || !startX) return;
+            
+            const endY = e.changedTouches[0].clientY;
+            const endX = e.changedTouches[0].clientX;
+            const diffY = startY - endY;
+            const diffX = startX - endX;
+            
+            // Swipe up or left for next article
+            if (Math.abs(diffY) > Math.abs(diffX) && diffY > 50) {
+                this.nextArticle();
+            } else if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
+                this.nextArticle();
+            }
+            
+            startY = 0;
+            startX = 0;
+        });
+    }
+
+    async loadArticles() {
+        this.showLoading();
+        this.isLoading = true;
+
+        try {
+            const response = await fetch(`${this.apiBase}/api/articles?limit=50`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            this.articles = data.articles || [];
+            
+            if (this.articles.length === 0) {
+                throw new Error('No articles found');
+            }
+            
+            this.currentIndex = 0;
+            this.updateCounter();
+            this.displayCurrentArticle();
+            this.showNews();
+            
+        } catch (error) {
+            console.error('Error loading articles:', error);
+            this.showError(error.message);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    async refreshArticles() {
+        if (this.isLoading) return;
+        
+        this.refreshBtnEl.style.transform = 'rotate(180deg)';
+        await this.loadArticles();
+        
+        setTimeout(() => {
+            this.refreshBtnEl.style.transform = 'rotate(0deg)';
+        }, 500);
+    }
+
+    nextArticle() {
+        if (this.articles.length === 0) return;
+        
+        this.currentIndex = (this.currentIndex + 1) % this.articles.length;
+        this.displayCurrentArticle();
+        this.updateCounter();
+        this.updateProgress();
+    }
+
+    previousArticle() {
+        if (this.articles.length === 0) return;
+        
+        this.currentIndex = this.currentIndex === 0 
+            ? this.articles.length - 1 
+            : this.currentIndex - 1;
+        this.displayCurrentArticle();
+        this.updateCounter();
+        this.updateProgress();
+    }
+
+    displayCurrentArticle() {
+        if (this.articles.length === 0) return;
+        
+        const article = this.articles[this.currentIndex];
+        
+        // Update image
+        if (article.image_url) {
+            this.articleImageEl.src = article.image_url;
+            this.articleImageEl.alt = article.title;
+        } else {
+            this.articleImageEl.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDYwMCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2MDAiIGhlaWdodD0iMjUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0yNzUgMTAwSDMyNVYxNTBIMjc1VjEwMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTI1MCAxNzVIMzUwVjIwMEgyNTBWMTc1WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+            this.articleImageEl.alt = 'No image available';
+        }
+        
+        // Update content
+        this.articleSourceEl.textContent = article.source || 'Unknown Source';
+        this.articleTimeEl.textContent = this.formatTime(article.published_at);
+        this.articleTitleEl.textContent = article.title;
+        this.articleSummaryEl.textContent = article.summary || article.description || 'No summary available';
+        this.articleLinkEl.href = article.url;
+        
+        // Add animation
+        this.articleCardEl.style.animation = 'none';
+        setTimeout(() => {
+            this.articleCardEl.style.animation = 'slideIn 0.5s ease-out';
+        }, 10);
+    }
+
+    updateCounter() {
+        this.currentArticleEl.textContent = this.currentIndex + 1;
+        this.totalArticlesEl.textContent = this.articles.length;
+    }
+
+    updateProgress() {
+        const progress = ((this.currentIndex + 1) / this.articles.length) * 100;
+        this.progressBarEl.style.width = `${progress}%`;
+    }
+
+    formatTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+        
+        if (diffInHours < 1) {
+            return 'Just now';
+        } else if (diffInHours < 24) {
+            return `${diffInHours}h ago`;
+        } else {
+            const diffInDays = Math.floor(diffInHours / 24);
+            return `${diffInDays}d ago`;
+        }
+    }
+
+    showLoading() {
+        this.loadingEl.classList.remove('hidden');
+        this.errorEl.classList.add('hidden');
+        this.newsContainerEl.classList.add('hidden');
+    }
+
+    showError(message) {
+        this.loadingEl.classList.add('hidden');
+        this.errorEl.classList.remove('hidden');
+        this.newsContainerEl.classList.add('hidden');
+        
+        document.getElementById('error-message').textContent = message;
+    }
+
+    showNews() {
+        this.loadingEl.classList.add('hidden');
+        this.errorEl.classList.add('hidden');
+        this.newsContainerEl.classList.remove('hidden');
+    }
+}
+
+// Initialize the news feed when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new NewsFeed();
+});
+
+// Add some helpful console messages
+console.log('⚡ Jinra loaded!');
+console.log('🎮 Controls:');
+console.log('  ↓ or → : Next article');
+console.log('  ↑ or ← : Previous article');
+console.log('  R : Refresh articles');
+console.log('  Swipe up/left on mobile: Next article');

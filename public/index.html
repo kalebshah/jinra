@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jinra - Smart News Feed</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">⚡ Jinra</h1>
+                <div class="controls">
+                    <span class="article-counter">
+                        <span id="current-article">1</span> / <span id="total-articles">0</span>
+                    </span>
+                    <button id="refresh-btn" class="refresh-btn">🔄</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Loading Screen -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+                <p>Loading Jinra...</p>
+        </div>
+
+        <!-- Error Screen -->
+        <div id="error" class="error hidden">
+            <div class="error-content">
+                <h2>⚠️ Something went wrong</h2>
+                <p id="error-message">Failed to load news articles</p>
+                <button id="retry-btn" class="retry-btn">Try Again</button>
+            </div>
+        </div>
+
+        <!-- News Container -->
+        <div id="news-container" class="news-container hidden">
+            <!-- Article Card -->
+            <div id="article-card" class="article-card">
+                <div class="article-image-container">
+                    <img id="article-image" src="" alt="" class="article-image">
+                    <div class="image-overlay"></div>
+                </div>
+                
+                <div class="article-content">
+                    <div class="article-meta">
+                        <span id="article-source" class="source"></span>
+                        <span id="article-time" class="time"></span>
+                    </div>
+                    
+                    <h2 id="article-title" class="title"></h2>
+                    
+                    <p id="article-summary" class="summary"></p>
+                    
+                    <div class="article-actions">
+                        <a id="article-link" href="#" target="_blank" class="read-more-btn">
+                            Read Full Article →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Instructions -->
+            <div class="navigation-hint">
+                <div class="hint-content">
+                    <span class="key">↓</span>
+                    <span class="hint-text">Press down arrow for next article</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

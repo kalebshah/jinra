@@ -1,0 +1,30 @@
+{
+  "name": "jinra",
+  "version": "1.0.0",
+  "description": "Jinra - Smart News Feed with AI Summaries",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "fetch-news": "node scripts/fetchNews.js",
+    "generate-summaries": "node scripts/generateSummaries.js",
+    "test-summary": "node scripts/generateSummaries.js --test",
+    "postinstall": "echo 'Installation complete'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "node-cron": "^3.0.3",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "@huggingface/transformers": "^3.7.3",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["jinra", "news", "ai", "summaries", "feed", "api"],
+  "author": "",
+  "license": "MIT"
+}
