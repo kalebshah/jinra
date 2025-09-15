@@ -307,6 +307,13 @@ body {
     font-weight: 500;
 }
 
+/* Hide navigation hint on mobile devices */
+@media (max-width: 768px) {
+    .desktop-only {
+        display: none !important;
+    }
+}
+
 .key {
     background: #2d3748;
     color: white;
