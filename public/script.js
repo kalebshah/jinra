@@ -91,6 +91,12 @@ class NewsFeed {
             } else if (Math.abs(diffX) > Math.abs(diffY) && diffX > 50) {
                 this.nextArticle();
             }
+            // Swipe down or right for previous article
+            else if (Math.abs(diffY) > Math.abs(diffX) && diffY < -50) {
+                this.previousArticle();
+            } else if (Math.abs(diffX) > Math.abs(diffY) && diffX < -50) {
+                this.previousArticle();
+            }
             
             startY = 0;
             startX = 0;
@@ -283,3 +289,4 @@ console.log('  ↑ or ← : Previous article');
 console.log('  Scroll up/down : Navigate articles');
 console.log('  R : Refresh articles');
 console.log('  Swipe up/left on mobile: Next article');
+console.log('  Swipe down/right on mobile: Previous article');
