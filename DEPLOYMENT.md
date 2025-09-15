@@ -1,6 +1,6 @@
-# 🚀 Jinra Deployment Guide
+# 🚀 Jinri Deployment Guide
 
-Deploy **Jinra** - your smart news feed with AI summaries to free cloud platforms!
+Deploy **Jinri** - your smart news feed with AI summaries to free cloud platforms!
 
 ## Option 1: Railway (Recommended)
 

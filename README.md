@@ -1,6 +1,6 @@
-# ⚡ Jinra
+# 📚 Jinri
 
-**Jinra** - A smart news feed with AI-powered summaries. Get the latest news with clean, concise 60-word summaries perfect for quick reading.
+**Jinri** - A smart news feed with AI-powered summaries. Get the latest news with clean, concise 60-word summaries perfect for quick reading.
 
 ## ✨ Features
 

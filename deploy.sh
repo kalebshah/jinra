@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "⚡ Jinra Deployment Script"
+echo "📚 Jinri Deployment Script"
 echo "=========================="
 
 # Check if git is initialized
@@ -8,7 +8,7 @@ if [ ! -d ".git" ]; then
     echo "📦 Initializing Git repository..."
     git init
     git add .
-    git commit -m "Initial commit - Jinra Smart News Feed"
+    git commit -m "Initial commit - Jinri Smart News Feed"
     echo "✅ Git repository initialized"
 else
     echo "✅ Git repository already exists"
@@ -45,4 +45,4 @@ echo "6. Set environment variables:"
 echo "   - NODE_ENV=production"
 echo "   - NEWS_API_KEY=dfff1b70ac824c66a499b0f9ecabb4de"
 echo ""
-echo "⚡ Jinra will be live at https://your-app-name.railway.app"
+echo "📚 Jinri will be live at https://your-app-name.railway.app"

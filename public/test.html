@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jinri Test</title>
+</head>
+<body>
+    <h1>Jinri API Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Testing health endpoint...');
+                const healthResponse = await fetch('/health');
+                const healthData = await healthResponse.json();
+                console.log('Health:', healthData);
+                
+                console.log('Testing articles endpoint...');
+                const articlesResponse = await fetch('/api/articles?limit=1');
+                const articlesData = await articlesResponse.json();
+                console.log('Articles:', articlesData);
+                
+                result.innerHTML = `
+                    <h2>✅ API Test Successful!</h2>
+                    <p><strong>Health:</strong> ${healthData.status}</p>
+                    <p><strong>Articles:</strong> ${articlesData.articles?.length || 0} loaded</p>
+                    <p><strong>First Article:</strong> ${articlesData.articles?.[0]?.title || 'None'}</p>
+                `;
+            } catch (error) {
+                console.error('Test failed:', error);
+                result.innerHTML = `<h2>❌ API Test Failed</h2><p>${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

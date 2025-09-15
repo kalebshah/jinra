@@ -4,10 +4,13 @@ class NewsFeed {
         this.currentIndex = 0;
         this.isLoading = false;
         this.apiBase = window.location.origin;
+        this.retryCount = 0;
+        this.maxRetries = 3;
+        this.isRailway = window.location.hostname.includes('railway.app');
         
         this.initializeElements();
         this.bindEvents();
-        this.loadArticles();
+        this.checkServerHealth();
     }
 
     initializeElements() {
@@ -82,18 +85,43 @@ class NewsFeed {
         });
     }
 
+    async checkServerHealth() {
+        try {
+            console.log('Checking server health...');
+            const response = await fetch(`${this.apiBase}/health`);
+            if (response.ok) {
+                console.log('Server is healthy, loading articles...');
+                this.loadArticles();
+            } else {
+                throw new Error('Server health check failed');
+            }
+        } catch (error) {
+            console.error('Server health check failed:', error);
+            // Still try to load articles in case health endpoint is not available
+            this.loadArticles();
+        }
+    }
+
     async loadArticles() {
         this.showLoading();
         this.isLoading = true;
 
         try {
+            console.log('Loading articles from:', `${this.apiBase}/api/articles?limit=50`);
             const response = await fetch(`${this.apiBase}/api/articles?limit=50`);
             
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+            
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error response:', errorText);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const data = await response.json();
+            console.log('Articles loaded:', data.articles?.length || 0);
+            
             this.articles = data.articles || [];
             
             if (this.articles.length === 0) {
@@ -107,6 +135,17 @@ class NewsFeed {
             
         } catch (error) {
             console.error('Error loading articles:', error);
+            
+            // Retry logic
+            if (this.retryCount < this.maxRetries) {
+                this.retryCount++;
+                console.log(`Retrying... (${this.retryCount}/${this.maxRetries})`);
+                setTimeout(() => {
+                    this.loadArticles();
+                }, 2000 * this.retryCount); // Exponential backoff
+                return;
+            }
+            
             this.showError(error.message);
         } finally {
             this.isLoading = false;
@@ -224,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Add some helpful console messages
-console.log('⚡ Jinra loaded!');
+console.log('📚 Jinri loaded!');
 console.log('🎮 Controls:');
 console.log('  ↓ or → : Next article');
 console.log('  ↑ or ← : Previous article');

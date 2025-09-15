@@ -12,6 +12,12 @@ const pool = require('./config/database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Railway-specific configuration
+if (process.env.RAILWAY_ENVIRONMENT) {
+  console.log('🚀 Running on Railway');
+  console.log('Environment:', process.env.RAILWAY_ENVIRONMENT);
+}
+
 // Middleware
 app.use(cors());
 app.use(express.json());
@@ -25,6 +31,20 @@ app.use('/api/articles', articlesRouter);
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack);
+  console.error('Request URL:', req.url);
+  console.error('Request Method:', req.method);
+  
+  // More detailed error response for debugging
+  res.status(500).json({ 
+    error: 'Something went wrong!',
+    message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+    url: req.url
+  });
 });
 
 // Background job - fetch news every 30 minutes
@@ -64,7 +84,7 @@ initialize();
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`⚡ Jinra running on port ${PORT}`);
+  console.log(`📚 Jinri running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`Articles API: http://localhost:${PORT}/api/articles`);
   console.log(`Frontend: http://localhost:${PORT}`);

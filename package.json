@@ -1,7 +1,7 @@
 {
-  "name": "jinra",
+  "name": "jinri",
   "version": "1.0.0",
-  "description": "Jinra - Smart News Feed with AI Summaries",
+  "description": "Jinri - Smart News Feed with AI Summaries",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -24,7 +24,7 @@
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["jinra", "news", "ai", "summaries", "feed", "api"],
+  "keywords": ["jinri", "news", "ai", "summaries", "feed", "api"],
   "author": "",
   "license": "MIT"
 }

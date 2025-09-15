@@ -1,6 +1,6 @@
-# ⚡ Jinra Frontend
+# 📚 Jinri Frontend
 
-A beautiful, responsive frontend for **Jinra** - the smart news feed with AI summaries.
+A beautiful, responsive frontend for **Jinri** - the smart news feed with AI summaries.
 
 ## Features
 
