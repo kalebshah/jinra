@@ -56,6 +56,18 @@ class NewsFeed {
         this.refreshBtnEl.addEventListener('click', () => this.refreshArticles());
         this.retryBtnEl.addEventListener('click', () => this.loadArticles());
 
+        // Scroll support for mouse wheel
+        this.articleCardEl.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                // Scroll down - next article
+                this.nextArticle();
+            } else if (e.deltaY < 0) {
+                // Scroll up - previous article
+                this.previousArticle();
+            }
+        });
+
         // Touch/swipe support for mobile
         let startY = 0;
         let startX = 0;
@@ -268,5 +280,6 @@ console.log('📚 Jinri loaded!');
 console.log('🎮 Controls:');
 console.log('  ↓ or → : Next article');
 console.log('  ↑ or ← : Previous article');
+console.log('  Scroll up/down : Navigate articles');
 console.log('  R : Refresh articles');
 console.log('  Swipe up/left on mobile: Next article');

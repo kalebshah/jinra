@@ -314,6 +314,12 @@ body {
     }
 }
 
+.key-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
 .key {
     background: #2d3748;
     color: white;
