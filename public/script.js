@@ -106,6 +106,7 @@ class NewsFeed {
         this.showLoading();
         this.isLoading = true;
 
+
         try {
             console.log('Loading articles from:', `${this.apiBase}/api/articles?limit=50`);
             const response = await fetch(`${this.apiBase}/api/articles?limit=50`);
