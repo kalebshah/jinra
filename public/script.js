@@ -8,6 +8,10 @@ class NewsFeed {
         this.maxRetries = 3;
         this.isRailway = window.location.hostname.includes('railway.app');
         
+        // Search properties
+        this.isSearchMode = false;
+        this.currentSearchQuery = '';
+        
         this.initializeElements();
         this.bindEvents();
         this.checkServerHealth();
@@ -35,11 +39,21 @@ class NewsFeed {
         this.refreshBtnEl = document.getElementById('refresh-btn');
         this.retryBtnEl = document.getElementById('retry-btn');
         this.progressBarEl = document.getElementById('progress-bar');
+        
+        // Search elements
+        this.searchInputEl = document.getElementById('search-input');
+        this.searchBtnEl = document.getElementById('search-btn');
+        this.clearSearchBtnEl = document.getElementById('clear-search-btn');
     }
 
     bindEvents() {
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
+            // Don't handle keyboard shortcuts if user is typing in search input
+            if (document.activeElement === this.searchInputEl) {
+                return;
+            }
+            
             if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
                 e.preventDefault();
                 this.nextArticle();
@@ -55,6 +69,22 @@ class NewsFeed {
         // Button events
         this.refreshBtnEl.addEventListener('click', () => this.refreshArticles());
         this.retryBtnEl.addEventListener('click', () => this.loadArticles());
+        
+        // Search events
+        this.searchBtnEl.addEventListener('click', () => this.performSearch());
+        this.clearSearchBtnEl.addEventListener('click', () => this.clearSearch());
+        this.searchInputEl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.performSearch();
+            }
+        });
+        this.searchInputEl.addEventListener('input', () => {
+            if (this.searchInputEl.value.trim()) {
+                this.clearSearchBtnEl.style.display = 'flex';
+            } else {
+                this.clearSearchBtnEl.style.display = 'none';
+            }
+        });
 
         // Scroll support for mouse wheel
         this.articleCardEl.addEventListener('wheel', (e) => {
@@ -238,6 +268,60 @@ class NewsFeed {
     updateProgress() {
         const progress = ((this.currentIndex + 1) / this.articles.length) * 100;
         this.progressBarEl.style.width = `${progress}%`;
+    }
+
+    async performSearch() {
+        const query = this.searchInputEl.value.trim();
+        
+        if (!query) {
+            this.showError('Please enter a search term');
+            return;
+        }
+
+        this.showLoading();
+        this.isLoading = true;
+
+        try {
+            console.log('Searching for:', query);
+            const response = await fetch(`${this.apiBase}/api/articles/search/${encodeURIComponent(query)}?limit=50`);
+            
+            if (!response.ok) {
+                throw new Error(`Search failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.results && data.results.length > 0) {
+                this.articles = data.results;
+                this.currentIndex = 0;
+                this.isSearchMode = true;
+                this.currentSearchQuery = query;
+                
+                this.showNews();
+                this.displayCurrentArticle();
+                this.updateCounter();
+                this.updateProgress();
+                
+                console.log(`Found ${data.results.length} articles for "${query}"`);
+            } else {
+                this.showError(`No articles found for "${query}". Try different keywords.`);
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+            this.showError(`Search failed: ${error.message}`);
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    clearSearch() {
+        this.searchInputEl.value = '';
+        this.clearSearchBtnEl.style.display = 'none';
+        this.isSearchMode = false;
+        this.currentSearchQuery = '';
+        
+        // Reload original articles
+        this.loadArticles();
     }
 
     formatTime(dateString) {

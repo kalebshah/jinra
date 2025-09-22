@@ -38,6 +38,51 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/articles/search/:query - Search articles with fuzzy matching
+router.get('/search/:query', async (req, res) => {
+  try {
+    const { query } = req.params;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    if (!query || query.trim().length === 0) {
+      return res.status(400).json({ error: 'Search query is required' });
+    }
+
+    // PostgreSQL full-text search with ranking
+    const searchQuery = query.trim().toLowerCase();
+    
+    const result = await pool.query(`
+      SELECT 
+        id, title, description, summary, url, image_url, source, published_at, created_at,
+        -- Calculate relevance score
+        (
+          CASE WHEN LOWER(title) LIKE $1 THEN 100 ELSE 0 END +
+          CASE WHEN LOWER(title) LIKE $2 THEN 50 ELSE 0 END +
+          CASE WHEN LOWER(description) LIKE $2 THEN 30 ELSE 0 END +
+          CASE WHEN LOWER(summary) LIKE $2 THEN 20 ELSE 0 END +
+          CASE WHEN LOWER(source) LIKE $2 THEN 10 ELSE 0 END
+        ) as relevance_score
+      FROM articles 
+      WHERE 
+        LOWER(title) LIKE $2 OR 
+        LOWER(description) LIKE $2 OR 
+        LOWER(summary) LIKE $2 OR 
+        LOWER(source) LIKE $2
+      ORDER BY relevance_score DESC, published_at DESC
+      LIMIT $3
+    `, [`%${searchQuery}%`, `%${searchQuery}%`, limit]);
+
+    res.json({
+      query: query,
+      results: result.rows,
+      count: result.rows.length
+    });
+  } catch (error) {
+    console.error('Error searching articles:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/articles/:id - Get single article
 router.get('/:id', async (req, res) => {
   try {
